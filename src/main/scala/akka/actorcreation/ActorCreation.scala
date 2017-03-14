@@ -21,6 +21,7 @@ object ChromecastDevice {
   sealed class ChromecastMessage
   case class Start (service : String) extends ChromecastMessage
   case class Stop (service : String) extends ChromecastMessage
+  def props = Props[ChromecaseController]
 
 }
 
@@ -28,16 +29,23 @@ class ChromecaseController extends Actor {
   def receive = {
     case Start(service) => println("STARTING "+service+" :D")
     case Stop(service)  => println("STOPPING "+service+" !! :(")
+    case _              => println("Unknown Command")
   }
 }
 
 class MobileDeviceController extends Actor {
-  val controller = context.actorOf(Props[ChromecaseController], "ChromeCast-Controller")
+
+  //val controller = context.actorOf(Props[ChromecaseController], "ChromeCast-Controller")
+  //instead of the above use this
+
+  val controller = context.actorOf(ChromecastDevice.props, "ChromeCast-Controller")
+
   def receive = {
     case Netflix("start") => controller ! Start("NETFLIX")
     case Stan("start")    => controller ! Start("STAN")
     case Netflix("stop")  => controller ! Stop("NETFLIX")
     case Stan("stop")     => controller ! Stop("STAN")
+    case _                => println("Unknown Command")
   }
 }
 
